@@ -9,6 +9,7 @@ import stat
 from .base64io import Base64IO
 from pathlib import Path
 
+_STREAM_CHUNK_SIZE = 65535 # Divisible by 3 for base64 encoding
 
 def stream_dir(source_directory, stream):
     with tempfile.NamedTemporaryFile() as tmp:
@@ -47,8 +48,11 @@ def stream_dir(source_directory, stream):
                 target = stream
             target.write(json.dumps({"zipfile": zip_size}).encode("utf-8") + b"\n")
             with Base64IO(target) as encoded_target:
-                for line in source:
-                    encoded_target.write(line)
+                while True:
+                    chunk = source.read(_STREAM_CHUNK_SIZE)
+                    if not chunk:
+                        break
+                    encoded_target.write(chunk)
 
 
 def unstream_dir(stream, length, target_directory):
@@ -57,7 +61,7 @@ def unstream_dir(stream, length, target_directory):
         with open(tmp.name, "wb") as target:
             with Base64IO(stream) as source:
                 remaining = length
-                chunk_size = 1024 * 1000  # 1 MB
+                chunk_size = _STREAM_CHUNK_SIZE
                 while remaining != 0:
                     if chunk_size >= remaining:
                         chunk_size = remaining
