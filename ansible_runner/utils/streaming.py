@@ -64,7 +64,7 @@ def unstream_dir(stream, length, target_directory):
                     data = source.read(chunk_size)
                     target.write(data)
 
-                    remaining -= chunk_size
+                    remaining -= len(data)
 
         with zipfile.ZipFile(tmp.name, "r") as archive:
             # Fancy extraction in order to preserve permissions
