@@ -115,6 +115,8 @@ class Base64IO(io.IOBase):
         if self.__write_buffer:
             self.__wrapped.write(base64.b64encode(self.__write_buffer))
             self.__write_buffer = b""
+        if self.writable():
+            self.flush()
         self.closed = True
 
     def _passthrough_interactive_check(self, method_name):
