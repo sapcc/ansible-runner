@@ -51,8 +51,11 @@ def stream_dir(source_directory, stream):
                 while True:
                     chunk = source.read(_STREAM_CHUNK_SIZE)
                     if not chunk:
+                        target.write(b'\n')
                         break
                     encoded_target.write(chunk)
+                    target.write(b'\n')
+                    target.flush()
 
 
 def unstream_dir(stream, length, target_directory):
